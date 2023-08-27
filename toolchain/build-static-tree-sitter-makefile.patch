@@ -1,0 +1,15 @@
+diff --git a/Makefile b/Makefile
+index 764f411..ab8bf43 100644
+--- a/Makefile
++++ b/Makefile
+@@ -18,8 +18,8 @@ endif
+ OBJ := $(SRC:.c=.o)
+ 
+ # define default flags, and override to append mandatory flags
+-CFLAGS ?= -O3 -Wall -Wextra -Werror
+-override CFLAGS += -std=gnu99 -fPIC -Ilib/src -Ilib/include
++CFLAGS ?= -static -Wall -Wextra -Werror
++override CFLAGS += -Ilib/src -Ilib/include
+ 
+ # ABI versioning
+ SONAME_MAJOR := 0
