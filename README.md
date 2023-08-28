@@ -14,7 +14,7 @@ Support for OpenSSL, PCRE, Treesitter, libpq, libgit2, libmagic, xxhash, libcurl
 just buildroot-build toolchain-build
 
 # build nim program
-docker run -ti --rm -v $(pwd):$(pwd) -w $(pwd) dh4x/toolchain:2022.11.1-1_2.0.0-1 nim c test.nim
+docker run -ti --rm -u docker -v $(pwd):$(pwd) -w $(pwd) dh4x/toolchain:2022.11.1-1_2.0.0-1 nim c test.nim
 ```
 
 # References
