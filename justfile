@@ -10,12 +10,12 @@ set export
 set dotenv-load
 
 BUILDROOT_VERSION := '2022.11.1'  # --build-arg for buildroot/Dockerfile
-NIM_VERSION       := '1.6.12'     # --build-arg for toolchain/Dockerfile
+NIM_VERSION       := '2.0.0'     # --build-arg for toolchain/Dockerfile
 
 buildroot-vers    :=  BUILDROOT_VERSION + '-1'
 buildroot-tag     := 'registry:5000/dh4x/buildroot:' + buildroot-vers
 
-toolchain-vers    :=  buildroot-vers + '_' + NIM_VERSION + '-4'
+toolchain-vers    :=  buildroot-vers + '_' + NIM_VERSION + '-1'
 toolchain-tag     := 'registry:5000/dh4x/toolchain:' + toolchain-vers
 
 buildroot-build *opts="":

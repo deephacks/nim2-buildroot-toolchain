@@ -162,7 +162,6 @@ RUN nimble install -y \
   packedjson \
   confutils \
   serialization \
-  slicerator \
   result \
   https://github.com/z-------------/semver2 \
   htsparse \
