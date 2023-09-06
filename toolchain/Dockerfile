@@ -156,7 +156,8 @@ RUN nimble install -y \
   memo \
   ws \
   protobuf \
-  smtp
+  smtp \
+  db_connector
 
 # HACK for '$HOME/boot/bin/nim':
 # put the real 'nim' executable first on $PATH, so that the 
