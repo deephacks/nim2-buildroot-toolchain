@@ -61,16 +61,6 @@ RUN groupadd --gid $docker_gid $docker_user \
   && echo $docker_user ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$docker_user \
   && chmod 0440 /etc/sudoers.d/$docker_user
 
-# RUN cd $(mktemp -d) && git clone --branch master --depth 1 https://github.com/yaml/libyaml.git .  \
-#   && mkdir -p build && cd build && cmake .. && make && make install
-
-# RUN cd $(mktemp -d) \
-#   && git clone --depth 1 https://github.com/pantoniou/libfyaml.git . \
-#   && autoreconf -fi \
-#   && ./configure \
-#   && make \
-#   && make install \
-#   && ldconfig
 
 USER $docker_user
 RUN touch $docker_home/.sudo_as_admin_successful
@@ -109,8 +99,6 @@ RUN bash /build-static-tree-sitter.bash
 
 ARG POSTGRESQL_VERSION=11.14
 
-# CPPFLAGS=-I\"$TOOLCHAIN_HOME/x86_64-buildroot-linux-musl/sysroot/usr/\" LDFLAGS=-L\"$TOOLCHAIN_HOME/x86_64-buildroot-linux-musl/sysroot/usr/\" ./configure --with-openssl --without-readline --prefix=\"$TOOLCHAIN_HOME/x86_64-buildroot-linux-musl/sysroot/usr/\"
-
 RUN echo "Building libpq" && \
     cd /tmp && \
     curl -fLO "https://ftp.postgresql.org/pub/source/v$POSTGRESQL_VERSION/postgresql-$POSTGRESQL_VERSION.tar.gz" && \
@@ -123,15 +111,6 @@ RUN echo "Building libpq" && \
 
 RUN nimble install nimgen -y
 RUN nimble install nimterop -y
-
-# TODO: integrate nimlsp with vscode (language server) 
-# github.com/PMunch/nimlsp: nim language server 
-# github.com/status-im/nim-metrics: metrics client library supporting the Prometheus monitoring toolkit, StatsD and Carbon
-# nimarchive \
-# nim_cjson \
-# iterrr
-# itertools
-
 RUN nimble install -y \
   fusion \
   npeg \
