@@ -1,8 +1,12 @@
 ARG NIM_VERSION
 ARG BUILDROOT_TAG
-FROM ${BUILDROOT_TAG}
+ARG docker_uid=1000
+ARG docker_gid=1000
+ARG docker_home=/home/docker
+ARG docker_user=docker
+ARG docker_group=users
 
-ARG NIM_VERSION
+FROM ${BUILDROOT_TAG}
 
 # STAGE 1
 
@@ -15,22 +19,21 @@ RUN make
 FROM ubuntu:22.04
 
 ARG NIM_VERSION
+ARG docker_uid
+ARG docker_gid
+ARG docker_home
+ARG docker_user
+ARG docker_group
 
 ENV \
   TERM=xterm-256color \
   HOME=/home/docker \
   NIM_HOME=/home/docker/opt/nim \
   NIMBLE_HOME=/home/docker/.nimble \
-  TOOLCHAIN_HOME=/opt/toolchain \
-  docker_home=/home/docker \
-  docker_user=docker \
-  docker_group=users \
-  docker_uid=1000 \
-  docker_gid=1000
+  TOOLCHAIN_HOME=/opt/toolchain
 
 ENV PATH=${TOOLCHAIN_HOME}/bin:${NIM_HOME}/bin:${NIMBLE_HOME}/bin:$PATH
 ENV LD_LIBRARY_PATH=${TOOLCHAIN_HOME}/lib
-COPY --from=0 /buildroot/output/host/ /opt/toolchain/
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
     curl \
@@ -55,22 +58,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+COPY --from=0 /buildroot/output/host/ /opt/toolchain/
 
 RUN groupadd --gid $docker_gid $docker_user \
   && useradd  --system --shell /bin/bash --uid $docker_uid --gid $docker_gid --groups sudo --create-home --comment "Docker User" $docker_user \
   && echo $docker_user ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$docker_user \
   && chmod 0440 /etc/sudoers.d/$docker_user
-
-# RUN cd $(mktemp -d) && git clone --branch master --depth 1 https://github.com/yaml/libyaml.git .  \
-#   && mkdir -p build && cd build && cmake .. && make && make install
-
-# RUN cd $(mktemp -d) \
-#   && git clone --depth 1 https://github.com/pantoniou/libfyaml.git . \
-#   && autoreconf -fi \
-#   && ./configure \
-#   && make \
-#   && make install \
-#   && ldconfig
 
 USER $docker_user
 RUN touch $docker_home/.sudo_as_admin_successful
@@ -81,7 +74,6 @@ RUN touch $docker_home/.sudo_as_admin_successful
 COPY --chown=$docker_user nim.cfg $docker_home/.config/nim/nim.cfg
 RUN sudo mkdir -p ${NIM_HOME} && sudo chown -R $docker_user:$docker_group ${NIM_HOME}
 RUN sudo chown -R $docker_user:$docker_group $TOOLCHAIN_HOME
-RUN ln -s $TOOLCHAIN_HOME/bin/x86_64-buildroot-linux-musl-strip $TOOLCHAIN_HOME/bin/strip
 ENV CC=/opt/toolchain/bin/x86_64-buildroot-linux-musl-gcc
 
 RUN cd ${NIM_HOME} \
@@ -109,8 +101,6 @@ RUN bash /build-static-tree-sitter.bash
 
 ARG POSTGRESQL_VERSION=11.14
 
-# CPPFLAGS=-I\"$TOOLCHAIN_HOME/x86_64-buildroot-linux-musl/sysroot/usr/\" LDFLAGS=-L\"$TOOLCHAIN_HOME/x86_64-buildroot-linux-musl/sysroot/usr/\" ./configure --with-openssl --without-readline --prefix=\"$TOOLCHAIN_HOME/x86_64-buildroot-linux-musl/sysroot/usr/\"
-
 RUN echo "Building libpq" && \
     cd /tmp && \
     curl -fLO "https://ftp.postgresql.org/pub/source/v$POSTGRESQL_VERSION/postgresql-$POSTGRESQL_VERSION.tar.gz" && \
@@ -123,14 +113,6 @@ RUN echo "Building libpq" && \
 
 RUN nimble install nimgen -y
 RUN nimble install nimterop -y
-
-# TODO: integrate nimlsp with vscode (language server) 
-# github.com/PMunch/nimlsp: nim language server 
-# github.com/status-im/nim-metrics: metrics client library supporting the Prometheus monitoring toolkit, StatsD and Carbon
-# nimarchive \
-# nim_cjson \
-# iterrr
-# itertools
 
 RUN nimble install -y \
   fusion \

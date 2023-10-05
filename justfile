@@ -45,6 +45,8 @@ toolchain-build *opts="":
   docker build --cache-to type=inline,mode=max \
     -t {{toolchain-tag}} \
     -f toolchain/Dockerfile toolchain {{opts}} \
+    --build-arg docker_uid=$(id -u) \
+    --build-arg docker_gid=$(id -g) \
     --build-arg BUILDROOT_TAG={{buildroot-tag}} \
     --build-arg NIM_VERSION={{NIM_VERSION}} {{opts}}
 
