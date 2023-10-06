@@ -147,11 +147,6 @@ nim:
     RUN mkdir -p ${NIM_HOME}
 
     RUN curl https://nim-lang.org/choosenim/init.sh -sSf | bash -s -- -y
-    # RUN choosenim 1.6.14
-
-    # RUN cd ${NIM_HOME} \
-    #   && curl -sL https://nim-lang.org/download/nim-${NIM_VERSION}-linux_x64.tar.xz \
-    #     | bsdtar --strip-components=1 -xf -
 
     RUN nimble install nimgen -y
     RUN nimble install nimterop -y
