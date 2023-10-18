@@ -198,7 +198,8 @@ nim:
       protobuf \
       smtp \
       db_connector \
-      protobuf_serialization
+      protobuf_serialization \
+      ready
 
     ENV PATH=$PATH:$HOME/bin:$HOME/lib
     WORKDIR $HOME
