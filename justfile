@@ -3,7 +3,15 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 set export
 set dotenv-load
 
+uid   := `id -u`
+gid   := `id -g`
+user  := `id -un`
+group := `id -gn`
+home  := env_var('HOME')
+
 # NOTE: symlink .env -> .arg
+
+build-all: build-buildroot build-toolchain build-nim
 
 # build buildroot image
 build-buildroot:
@@ -15,7 +23,12 @@ build-toolchain:
 
 # build nim
 build-nim:
-  earthly +nim --uid=$(id -u) --gid=$(id -g)
+  earthly -i +nim \
+    --home='{{home}}' \
+    --user='{{user}}' \
+    --group='{{group}}' \
+    --uid='{{uid}}' \
+    --gid='{{uid}}'
 
 # configure buildroot using menuconfig
 menu:

@@ -1792,12 +1792,21 @@ BR2_PACKAGE_PROVIDES_HOST_OPENSSL="host-libopenssl"
 #
 # BR2_PACKAGE_LIBMDBX is not set
 # BR2_PACKAGE_LIBODB is not set
+# BR2_PACKAGE_LIBODB_MYSQL is not set
 BR2_PACKAGE_MONGODB_ARCH_SUPPORTS=y
 
 #
 # mongodb needs a glibc toolchain w/ wchar, threads, C++, gcc >= 7
 #
-# BR2_PACKAGE_MYSQL is not set
+BR2_PACKAGE_MYSQL=y
+
+#
+# mariadb needs a toolchain w/ dynamic library
+#
+BR2_PACKAGE_ORACLE_MYSQL=y
+# BR2_PACKAGE_ORACLE_MYSQL_SERVER is not set
+BR2_PACKAGE_HAS_MYSQL=y
+BR2_PACKAGE_PROVIDES_MYSQL="oracle-mysql"
 
 #
 # postgresql needs a toolchain w/ dynamic library, wchar
@@ -2913,7 +2922,10 @@ BR2_PACKAGE_PROTOBUF_ARCH_SUPPORTS=y
 # BR2_PACKAGE_LIBFRIBIDI is not set
 # BR2_PACKAGE_LIBUNISTRING is not set
 # BR2_PACKAGE_LINENOISE is not set
-# BR2_PACKAGE_NCURSES is not set
+BR2_PACKAGE_NCURSES=y
+# BR2_PACKAGE_NCURSES_WCHAR is not set
+# BR2_PACKAGE_NCURSES_TARGET_PROGS is not set
+BR2_PACKAGE_NCURSES_ADDITIONAL_TERMINFO=""
 
 #
 # newt needs a toolchain w/ wchar, dynamic library

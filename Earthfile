@@ -1,5 +1,5 @@
-VERSION 0.7
-FROM ubuntu:latest
+VERSION 0.8
+FROM ubuntu:24.04
 
 buildroot:
     ARG BUILDROOT_VERSION
@@ -92,29 +92,45 @@ toolchain:
         cd src/interfaces/libpq && make all-static-lib && make install-lib-static && \
         cd ../../bin/pg_config && make && make install && \
         rm -r /tmp/*
+
+    # ARG MYSQL_VERSION=8.0.29
+
+    # RUN cd $(mktemp -d) \
+    #   && wget https://github.com/mysql/mysql-server/archive/refs/tags/mysql-$MYSQL_VERSION.tar.gz \
+    #   && tar xzvf mysql-$MYSQL_VERSION.tar.gz \
+    #   && cd mysql-server-mysql-$MYSQL_VERSION \
+    #   && cd build \
+    #   && cmake .. \
+    #     -DCMAKE_INSTALL_PREFIX=$TOOLCHAIN_HOME/x86_64-buildroot-linux-musl/sysroot/usr/ \
+    #     -DWITH_STATIC_LIB=1 \
+    #     -DCMAKE_C_COMPILER=musl-gcc \
+    #     -DCMAKE_CXX_COMPILER=musl-g++ \
+    #     -DWITH_SSL=bundled \
+    #     -DFEATURE_SET=community \
+    #     -DENABLED_LOCAL_INFILE=1
+
     SAVE ARTIFACT /opt/toolchain AS LOCAL build/toolchain
 
 nim:
     COPY build/toolchain /opt/toolchain
-    ARG NIM_VERSION=2.0.0
-    ARG uid=1000
-    ARG gid=1000
-    ARG home=/home/docker
-    ARG user=docker
-    ARG group=users
+    ARG NIM_VERSION
+    ARG uid
+    ARG gid
+    ARG home
+    ARG user
+    ARG group
 
     ENV TERM=xterm-256color
     ENV HOME=${home}
-    ENV NIM_HOME=${home}/opt/nim
     ENV NIMBLE_HOME=${home}/.nimble
     ENV TOOLCHAIN_HOME=/opt/toolchain
-    ENV PATH=${TOOLCHAIN_HOME}/bin:${NIM_HOME}/bin:${NIMBLE_HOME}/bin:$PATH
+    ENV PATH=${TOOLCHAIN_HOME}/bin:${NIMBLE_HOME}/bin:$PATH
     ENV LD_LIBRARY_PATH=${TOOLCHAIN_HOME}/lib
     ENV CC=${TOOLCHAIN_HOME}/bin/x86_64-buildroot-linux-musl-gcc
 
     RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
         curl \
-        libsqlite-dev \
+        libsqlite3-dev \
         libarchive-tools \
         sudo \
         ca-certificates \
@@ -135,16 +151,15 @@ nim:
       && apt-get clean \
       && rm -rf /var/lib/apt/lists/*
 
-    RUN groupadd --gid $gid $user \
+    RUN usermod -u 2000 ubuntu && groupmod -g 2000 ubuntu \
+      && groupadd --gid $gid $user \
       && useradd  --system --shell /bin/bash --uid $uid --gid $gid --groups sudo --create-home --comment "Docker User" $user \
       && echo $user ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$user \
       && chmod 0440 /etc/sudoers.d/$user
 
     USER $user
     RUN touch $home/.sudo_as_admin_successful
-
-    COPY --chown=$user:$group nim.cfg $home/.config/nim/nim.cfg
-    RUN mkdir -p ${NIM_HOME}
+    # COPY --chown=$user:$group nim.cfg $HOME/.nimble/config/nim.cfg
 
     RUN curl https://nim-lang.org/choosenim/init.sh -sSf | bash -s -- -y
 
@@ -188,7 +203,6 @@ nim:
       ormin \
       https://github.com/joachimschmidt557/nim-lscolors \
       datamancer \
-      nimlangserver \
       puppy \
       asyncftpclient \
       https://github.com/nim-works/cps \
@@ -199,7 +213,10 @@ nim:
       smtp \
       db_connector \
       protobuf_serialization \
-      ready
+      ready \
+      nimgraphviz \
+      malebolgia \
+      curly
 
     ENV PATH=$PATH:$HOME/bin:$HOME/lib
     WORKDIR $HOME
